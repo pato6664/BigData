@@ -34,20 +34,17 @@ get_labels <- function(df_list){
   
 }
 
-
+ts_labels <- get_labels(ts_df_list)
 
 # Run a dtwclust model 
+# tsclust require data matrix to be in rowise format or in a tslist format (if series are not of equal length)
+# DTW-DBA 
 
-dtw_dba <- tsclust(ts_df_list$CBF_TRAIN[,-1], k = 3L,
-                  distance = "euclidean", centroid = "mean",
-                  trace = TRUE, seed = 8, norm = "L2",args = tsclust_args(cent = list(trace = TRUE)))
-
-
-
-
-
-
-
-
+dtw_dba <- tsclust(ts_df_list$GunPoint_TRAIN[,-1], k = 2L,
+                  distance = 'dtw_basic', centroid = "dba",
+                  trace = TRUE, preproc = NULL,type = 'partitional',
+                  args = tsclust_args(cent = list(trace = TRUE)))
+plot(dtw_dba)
+sum((ts_labels$GunPoint_TRAIN == dtw_dba@cluster))
 
 
