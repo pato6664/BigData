@@ -10,7 +10,6 @@ data_dir <- dir("./data/",full.names = T)
 # The first column will contain the data labels 
 # Data is formatred rowise i.e. each row is a time series 
 
-
 ts_df_list <- lapply(data_dir,read.table,sep = '\t')
 
 names(ts_df_list) <- gsub(".tsv","",dir("./data/"))
@@ -40,11 +39,26 @@ ts_labels <- get_labels(ts_df_list)
 # tsclust require data matrix to be in rowise format or in a tslist format (if series are not of equal length)
 # DTW-DBA 
 
-dtw_dba <- tsclust(ts_df_list$GunPoint_TRAIN[,-1], k = 2L,
-                  distance = 'dtw_basic', centroid = "dba",
-                  trace = TRUE, preproc = NULL,type = 'partitional',
-                  args = tsclust_args(cent = list(trace = TRUE)))
-plot(dtw_dba)
-sum((ts_labels$GunPoint_TRAIN == dtw_dba@cluster))
+dtw_dba <- tsclust(ts_df_list$ECG5000_TRAIN[,-1], k = 5L,
+                  distance = 'sbd', centroid = "shape",
+                  trace = TRUE, preproc = zscore,type = 'partitional',
+                  args = tsclust_args(cent = list(trace = TRUE)),
+                  control = partitional_control(nrep = 200L))
+
+plot(dtw_dba,type='centroids')
+ 
+
+compare_labels <- function(cluster,ts_labels){
+  
+  sum(ts_labels ==  cluster@cluster)/length(ts_labels)
+
+}
 
 
+compare_labels(dtw_dba,ts_labels$ECG5000_TRAIN)/length(ts_labels$ECG5000_TRAIN)
+
+best_pct_correct <- unlist(lapply(dtw_dba, compare_labels,ts_labels = ts_labels$ECG5000_TRAIN))
+
+which(best_pct_correct == max(best_pct_correct))
+
+dtw_dba20
