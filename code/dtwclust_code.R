@@ -52,14 +52,13 @@ compare_labels <- function(cluster,ts_labels){
 
 sdtw_cbf <- tsclust(ts_df_list$CBF_TRAIN[,-1], k = 3L,
                   distance = 'sdtw', centroid = "sdtw_cent",
-                  trace = TRUE, preproc = zscore,type = 'partitional',
+                  trace = TRUE, preproc = NULL,type = 'partitional',
                   args = tsclust_args(cent = list(trace = TRUE),dist = list(gamma = 0.1)),
                   control = partitional_control(nrep = 100L))
 
 
 
 best_sdtw_cbf <- unlist(lapply(sdtw_cbf, compare_labels,ts_labels = ts_labels$CBF_TRAIN))
-
 
 best_sdtw_cbf[which(best_sdtw_cbf== max(best_sdtw_cbf))]
 
@@ -263,3 +262,21 @@ colnames(df_characteristics) <- c('Dataset','Series','Length','Classes')
 
 df_characteristics
 xtable::xtable(df_characteristics)
+
+#################################################################################################################################
+# sbd
+#################################################################################################################################
+
+sbd_cbf <- tsclust(ts_df_list$CBF_TRAIN[,-1], k = 3L,
+                        distance = 'sbd', centroid = "shape",
+                        trace = TRUE, preproc = NULL,type = 'partitional',
+                        args = tsclust_args(cent = list(trace = TRUE)),
+                        control = partitional_control(nrep = 100L))
+
+
+best_sbd_cbf <- unlist(lapply(sbd_cbf, compare_labels,ts_labels = ts_labels$CBF_TRAIN))
+
+best_sbd_cbf[which(best_sbd_cbf == max(best_sbd_cbf))]
+
+plot(dba_gunpoint[[which(best_dba_gunpoint == max(best_dba_gunpoint))[1]]],type = 'centroid')
+
